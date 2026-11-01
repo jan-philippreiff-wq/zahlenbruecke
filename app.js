@@ -47,6 +47,7 @@ function start(id,boss=false){
  session={id,boss,tasks:boss?bossRound():makeRound(id),index:0,correct:0,attempted:false,resolved:false,misses:[]};
  const def=definitions.find(d=>d.id===id);
  $('practiceTitle').textContent=boss?'Der Brückenwächter':def.name;
+ $('practiceTitle').innerHTML=boss?'<span class="monster battle-monster" aria-hidden="true"><span>• •</span><b>⌣</b></span>Der Brückenwächter':def.name;
  $('practiceTag').textContent=boss?'10 AUFGABEN · MINDESTENS 8 RICHTIG':def.tag;
  $('practiceSettings').hidden=boss;
  const isTransition=['ten','hundred','thousand'].includes(id);
@@ -61,6 +62,7 @@ function current(){return session.tasks[session.index];}
 function field(id,label){return `<label class="answer-label" for="${id}">${label}<input id="${id}" name="${id}" inputmode="numeric" autocomplete="off" maxlength="7" aria-describedby="feedback"></label>`;}
 function renderTask(){
  const t=current();session.attempted=false;session.resolved=false;
+ session.jumpStage=0;
  $('counter').textContent=`Aufgabe ${session.index+1} von 10`;
  $('score').textContent=session.boss?`${session.correct} richtig`:`${session.correct} beim ersten Mal richtig`;
  $('progress').value=session.index;$('question').textContent=t.prompt;
@@ -68,10 +70,24 @@ function renderTask(){
  $('answerForm').hidden=false;$('check').disabled=false;$('hintBtn').hidden=session.boss;
  $('taskVisual').innerHTML=t.kind==='pairs'?`<div class="tenfield" aria-label="Zehnerfeld: ${t.a} von 10 Plätzen sind belegt.">${Array.from({length:10},(_,i)=>`<i class="${i<t.a?'filled':''}"></i>`).join('')}</div>`:'';
  const guided=t.kind==='transition'&&!session.boss&&$('guided').checked;
+ if(t.kind==='transition'&&!session.boss)renderNumberLine();
  $('fields').innerHTML=(guided?`<p class="fields-hint">Zerlege die ${fmt(t.b)}. Rechne in zwei Schritten.</p>${field('part1',`${fmt(t.a)} ${t.sign} ? = ${fmt(t.base)}`)}${field('part2','Wie viel bleibt vom Rechen-Paket übrig?')}`:'')+field('answer','Mein Ergebnis:');
  const input=$('part1')||$('answer');input.focus({preventScroll:true});
 }
 function expected(){const t=current();return $('part1')?[['part1',t.first],['part2',t.second],['answer',t.answer]]:[['answer',t.answer]];}
+function numberLineSVG(t,stage){
+ const low=Math.min(t.a,t.answer), x=n=>80+600*(n-low)/t.b;
+ const start=x(t.a),stop=x(t.base),end=x(t.answer);
+ const arc=(a,b,h,color,label,y)=>`<path d="M ${a} 210 Q ${(a+b)/2} ${210-h*2} ${b} 210" fill="none" stroke="${color}" stroke-width="3" marker-end="url(#jumpArrow)"/><text x="${(a+b)/2}" y="${y}" text-anchor="middle" fill="${color}" font-size="25" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="9" stroke-linejoin="round">${label}</text>`;
+ return `<svg viewBox="0 0 760 305" role="img" aria-label="${t.sign==='+'?'Sprünge nach rechts':'Sprünge nach links'}. Ganzes Paket: ${t.sign} ${t.b}.${stage>=1?` Erst ${t.sign} ${t.first} bis ${fmt(t.base)}.`:''}${stage>=2?` Dann ${t.sign} ${t.second}.`:''}${stage>=3?` Ergebnis ${fmt(t.answer)}.`:''}" style="width:100%;min-width:480px;display:block;font-family:Arial,sans-serif"><defs><marker id="jumpArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#216c52"/></marker></defs><path d="M 25 210 H 735 l -10 -6 m 10 6 l -10 6" fill="none" stroke="#163d39" stroke-width="2"/>${arc(start,end,160,'#526863',`${t.sign} ${t.b} insgesamt`,35)}${stage>=1?arc(start,stop,75,'#216c52',`${t.sign} ${t.first}`,125):''}${stage>=2?arc(stop,end,75,'#9b4b15',`${t.sign} ${t.second}`,155):''}${[start,stop,end].map(v=>`<path d="M ${v} 203 v 14" stroke="#163d39" stroke-width="2"/>`).join('')}<text x="${start}" y="244" text-anchor="middle" font-size="25" font-weight="bold">${fmt(t.a)}</text><text x="${stop}" y="280" text-anchor="middle" font-size="23" fill="#216c52">${stage>=1?fmt(t.base):'?'} · STOPP</text><text x="${end}" y="244" text-anchor="middle" font-size="25" font-weight="bold">${stage>=3?fmt(t.answer):'?'}</text></svg>`;
+}
+function renderNumberLine(){
+ const t=current(),s=session.jumpStage;
+ const words=[`Das ganze Paket ist ${t.sign} ${t.b}. Wo liegt dein Stopp?`, `Erstes Paket: ${t.sign} ${t.first}. ${fmt(t.a)} ${t.sign} ${t.first} = ${fmt(t.base)}.`, `Zweites Paket: ${t.sign} ${t.second}. Denn ${t.b} = ${t.first} + ${t.second}. Rechne jetzt das Ergebnis.`, `${fmt(t.base)} ${t.sign} ${t.second} = ${fmt(t.answer)}. Beide Pakete zusammen: ${t.sign} ${t.b}.`];
+ $('taskVisual').innerHTML=`<section aria-label="Rechnen mit Sprüngen" style="background:#f4f7ee;padding:16px;border-radius:12px"><strong>Deine Sprünge auf dem Zahlenstrahl</strong><div style="overflow-x:auto;background:white;border-radius:10px;margin-top:12px" tabindex="0" aria-label="Zahlenstrahl, auf kleinen Bildschirmen seitlich verschiebbar">${numberLineSVG(t,s)}</div><p role="status" aria-live="polite" style="margin:12px 0">${words[s]}</p><div class="toolbar wrap"><button id="jumpBack" class="quiet" type="button" ${s===0?'disabled':''}>Ein Schritt zurück</button><button id="jumpNext" class="primary" type="button" ${s===3?'disabled':''}>${['1. Sprung zeigen','2. Sprung zeigen','Ergebnis zeigen','Alle Sprünge sichtbar'][s]}</button></div></section>`;
+ $('jumpBack').onclick=()=>{if(session.jumpStage>0)session.jumpStage--;renderNumberLine();};
+ $('jumpNext').onclick=()=>{if(session.jumpStage<3)session.jumpStage++;renderNumberLine();};
+}
 function feedback(message,error=false){$('feedback').textContent=message;$('feedback').className=`feedback ${error?'error':'ok'}`;}
 $('answerForm').onsubmit=e=>{
  e.preventDefault();if(!session||session.resolved)return;
