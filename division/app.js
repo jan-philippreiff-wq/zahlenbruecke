@@ -27,7 +27,7 @@ function division(n,d){const digits=String(n),events=[],rows=[],q=[];let end=0,p
  events.push({type:3,label:`Hole die nächste Ziffer ${digits[end]} herunter. Welche Zahl entsteht aus dem Zwischenrest ${remainder} und dieser Ziffer?`,answer:part,note:`Tausche den Zwischenrest in die nächstkleinere Einheit: ${remainder} · 10 + ${digits[end]} = ${part}.`,...snap()});
  }
  return{n,d,events,quotient:Math.floor(n/d),remainder:n%d};}
-function paper(state){const q=state?.q||'',slots='□'.repeat(String(trace.quotient).length-q.length);return `<pre class="division-paper" aria-label="Schriftlicher Rechenweg, leere Kästchen sind noch offene Stellen">  ${trace.n} : ${trace.d} = ${q}${slots}\n${state?.rows.join('\n')||''}</pre>`;}
+function paper(state){const q=state?.q||'',slots='□'.repeat(String(trace.quotient).length-q.length),rest=trace.remainder&&!slots?` Rest ${state===trace.events.at(-1)?trace.remainder:'?'}`:'';return `<pre class="division-paper" aria-label="Schriftlicher Rechenweg, leere Kästchen sind noch offene Stellen">  ${trace.n} : ${trace.d} = ${q}${slots}${rest}\n${state?.rows.join('\n')||''}</pre>`;}
 function render(){attempted=false;locked=false;eventIndex=0;$('count').textContent=`Aufgabe ${index+1} von ${tasks.length}`;
  if(['learn','guided','zero','remainder'].includes(mode)){const [n,d]=tasks[index];trace=division(n,d);written();}else if(mode==='parts')partPractice();else simple();}
 function form(){return '<form id="form" novalidate><label for="answer">Meine Antwort: </label><input id="answer" inputmode="numeric" autocomplete="off"><button class="primary" style="margin:12px" type="submit">Prüfen</button></form><p id="feedback" role="status" aria-live="polite"></p><button id="next" class="primary" hidden>Weiter →</button>';}
