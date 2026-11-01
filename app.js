@@ -6,7 +6,7 @@ const shuffle = list => {const a=[...list];for(let i=a.length-1;i>0;i--){const j
 const definitions = [
  {id:'pairs',icon:'10',name:'Verliebte Zahlen',desc:'Welche Zahlen ergeben zusammen 10?',tag:'VOR DEM START'},
  {id:'place',icon:'T H Z E',name:'Zahlen verstehen',desc:'Tausender, Hunderter, Zehner und Einer.',tag:'VOR DEM START'},
- {id:'exchange',icon:'10 → 1',name:'Tausch-Werkstatt',desc:'Lege 998. Tausche 10 gegen 1.',tag:'SEHEN UND TAUSCHEN'},
+ {id:'exchange',icon:'10 → 1',name:'Tausch-Werkstatt',desc:'Lege Zahlen. Rechne weiter. Tausche 10 gegen 1.',tag:'SEHEN UND TAUSCHEN'},
  {id:'ten',icon:'↗ 10',name:'Über den Zehner',desc:'Erst bis 10. Dann den Rest rechnen.',tag:'KLEINE BRÜCKE'},
  {id:'hundred',icon:'↗ 100',name:'Über den Hunderter',desc:'Erst bis 100. Dann den Rest rechnen.',tag:'MITTLERE BRÜCKE'},
  {id:'thousand',icon:'↗ 1.000',name:'Über den Tausender',desc:'Erst bis 1.000. Dann den Rest rechnen.',tag:'GROSSE BRÜCKE'},
@@ -79,11 +79,11 @@ function numberLineSVG(t,stage){
  const low=Math.min(t.a,t.answer), x=n=>80+600*(n-low)/t.b;
  const start=x(t.a),stop=x(t.base),end=x(t.answer);
  const arc=(a,b,h,color,label,y)=>`<path d="M ${a} 210 Q ${(a+b)/2} ${210-h*2} ${b} 210" fill="none" stroke="${color}" stroke-width="3" marker-end="url(#jumpArrow)"/><text x="${(a+b)/2}" y="${y}" text-anchor="middle" fill="${color}" font-size="25" font-weight="bold" paint-order="stroke" stroke="#fff" stroke-width="9" stroke-linejoin="round">${label}</text>`;
- return `<svg viewBox="0 0 760 305" role="img" aria-label="${t.sign==='+'?'Sprünge nach rechts':'Sprünge nach links'}. Ganzes Paket: ${t.sign} ${t.b}.${stage>=1?` Erst ${t.sign} ${t.first} bis ${fmt(t.base)}.`:''}${stage>=2?` Dann ${t.sign} ${t.second}.`:''}${stage>=3?` Ergebnis ${fmt(t.answer)}.`:''}" style="width:100%;min-width:480px;display:block;font-family:Arial,sans-serif"><defs><marker id="jumpArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#216c52"/></marker></defs><path d="M 25 210 H 735 l -10 -6 m 10 6 l -10 6" fill="none" stroke="#163d39" stroke-width="2"/>${arc(start,end,160,'#526863',`${t.sign} ${t.b} insgesamt`,35)}${stage>=1?arc(start,stop,75,'#216c52',`${t.sign} ${t.first}`,125):''}${stage>=2?arc(stop,end,75,'#9b4b15',`${t.sign} ${t.second}`,155):''}${[start,stop,end].map(v=>`<path d="M ${v} 203 v 14" stroke="#163d39" stroke-width="2"/>`).join('')}<text x="${start}" y="244" text-anchor="middle" font-size="25" font-weight="bold">${fmt(t.a)}</text><text x="${stop}" y="280" text-anchor="middle" font-size="23" fill="#216c52">${stage>=1?fmt(t.base):'?'} · STOPP</text><text x="${end}" y="244" text-anchor="middle" font-size="25" font-weight="bold">${stage>=3?fmt(t.answer):'?'}</text></svg>`;
+ return `<svg viewBox="0 0 760 305" role="img" aria-label="${t.sign==='+'?'Sprünge nach rechts':'Sprünge nach links'}. Ganzes Paket: ${t.sign} ${t.b}. Stopp bei ${fmt(t.base)}.${stage>=1?` Erst ${t.sign} ${t.first} bis ${fmt(t.base)}.`:''}${stage>=2?` Dann ${t.sign} ${t.second}.`:''}${stage>=3?` Ergebnis ${fmt(t.answer)}.`:''}" style="width:100%;min-width:480px;display:block;font-family:Arial,sans-serif"><defs><marker id="jumpArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#216c52"/></marker></defs><path d="M 25 210 H 735 l -10 -6 m 10 6 l -10 6" fill="none" stroke="#163d39" stroke-width="2"/>${arc(start,end,160,'#526863',`${t.sign} ${t.b} insgesamt`,35)}${stage>=1?arc(start,stop,75,'#216c52',`${t.sign} ${t.first}`,125):''}${stage>=2?arc(stop,end,75,'#9b4b15',`${t.sign} ${t.second}`,155):''}${[start,stop,end].map(v=>`<path d="M ${v} 203 v 14" stroke="#163d39" stroke-width="2"/>`).join('')}<text x="${start}" y="244" text-anchor="middle" font-size="25" font-weight="bold">${fmt(t.a)}</text><rect x="${Math.max(2,Math.min(568,stop-95))}" y="254" width="190" height="43" rx="10" fill="#d8ed8d"/><path d="M ${stop} 210 V 254" stroke="#216c52" stroke-width="3" stroke-dasharray="4 4"/><circle cx="${stop}" cy="210" r="7" fill="#216c52"/><text x="${Math.max(97,Math.min(663,stop))}" y="280" text-anchor="middle" font-size="23" fill="#216c52">${fmt(t.base)} · STOPP</text><text x="${end}" y="244" text-anchor="middle" font-size="25" font-weight="bold">${stage>=3?fmt(t.answer):'?'}</text></svg>`;
 }
 function renderNumberLine(){
  const t=current(),s=session.jumpStage;
- const words=[`Das ganze Paket ist ${t.sign} ${t.b}. Wo liegt dein Stopp?`, `Erstes Paket: ${t.sign} ${t.first}. ${fmt(t.a)} ${t.sign} ${t.first} = ${fmt(t.base)}.`, `Zweites Paket: ${t.sign} ${t.second}. Denn ${t.b} = ${t.first} + ${t.second}. Rechne jetzt das Ergebnis.`, `${fmt(t.base)} ${t.sign} ${t.second} = ${fmt(t.answer)}. Beide Pakete zusammen: ${t.sign} ${t.b}.`];
+ const words=[`Das ganze Paket ist ${t.sign} ${t.b}. Dein Stopp liegt bei ${fmt(t.base)}.`, `Erstes Paket: ${t.sign} ${t.first}. ${fmt(t.a)} ${t.sign} ${t.first} = ${fmt(t.base)}.`, `Zweites Paket: ${t.sign} ${t.second}. Denn ${t.b} = ${t.first} + ${t.second}. Rechne jetzt das Ergebnis.`, `${fmt(t.base)} ${t.sign} ${t.second} = ${fmt(t.answer)}. Beide Pakete zusammen: ${t.sign} ${t.b}.`];
  $('taskVisual').innerHTML=`<section aria-label="Rechnen mit Sprüngen" style="background:#f4f7ee;padding:16px;border-radius:12px"><strong>Deine Sprünge auf dem Zahlenstrahl</strong><div style="overflow-x:auto;background:white;border-radius:10px;margin-top:12px" tabindex="0" aria-label="Zahlenstrahl, auf kleinen Bildschirmen seitlich verschiebbar">${numberLineSVG(t,s)}</div><p role="status" aria-live="polite" style="margin:12px 0">${words[s]}</p><div class="toolbar wrap"><button id="jumpBack" class="quiet" type="button" ${s===0?'disabled':''}>Ein Schritt zurück</button><button id="jumpNext" class="primary" type="button" ${s===3?'disabled':''}>${['1. Sprung zeigen','2. Sprung zeigen','Ergebnis zeigen','Alle Sprünge sichtbar'][s]}</button></div></section>`;
  $('jumpBack').onclick=()=>{if(session.jumpStage>0)session.jumpStage--;renderNumberLine();};
  $('jumpNext').onclick=()=>{if(session.jumpStage<3)session.jumpStage++;renderNumberLine();};
@@ -102,7 +102,7 @@ $('answerForm').onsubmit=e=>{
 function finishAnswer(){$('check').disabled=true;expected().forEach(([id])=>$(id).disabled=true);$('hintBtn').hidden=true;$('score').textContent=`${session.correct} beim ersten Mal richtig`;$('progress').value=session.index+1;$('next').textContent=session.index===9?'Ergebnis ansehen →':'Weiter →';$('next').hidden=false;$('next').focus({preventScroll:true});}
 $('hintBtn').onclick=()=>{$('hint').innerHTML=hintFor(current());$('hint').hidden=false;};
 $('next').onclick=()=>{if(!session.resolved)return;session.index++;if(session.index===10)endRound();else renderTask();};
-function bridgeHTML(t,stage=3){return `<div class="bridge" aria-label="${fmt(t.a)}, ${t.sign} ${t.first} bis ${fmt(t.base)}, dann ${t.sign} ${t.second} bis ${fmt(t.answer)}"><strong>${fmt(t.a)}</strong><span class="jump">${stage>=1?t.sign+' '+fmt(t.first):'?'}<small> →</small></span><strong class="stop">${stage>=1?fmt(t.base):'?'}<small style="display:block;font-size:12px">STOPP</small></strong><span class="jump">${stage>=2?t.sign+' '+fmt(t.second):'?'}<small> →</small></span><strong>${stage>=2?fmt(t.answer):'?'}</strong></div>`;}
+function bridgeHTML(t,stage=3){return `<div class="bridge" aria-label="${fmt(t.a)}, ${t.sign} ${t.first} bis ${fmt(t.base)}, dann ${t.sign} ${t.second} bis ${fmt(t.answer)}"><strong>${fmt(t.a)}</strong><span class="jump">${stage>=1?t.sign+' '+fmt(t.first):'?'}<small> →</small></span><strong class="stop">${fmt(t.base)}<small style="display:block;font-size:12px">STOPP</small></strong><span class="jump">${stage>=2?t.sign+' '+fmt(t.second):'?'}<small> →</small></span><strong>${stage>=2?fmt(t.answer):'?'}</strong></div>`;}
 function hintFor(t){
  if(t.kind==='transition')return `<strong>Erst zur ${fmt(t.base)}. Dann den Rest.</strong>${bridgeHTML(t)}<p>Ich zerlege ${fmt(t.b)} in ${fmt(t.first)} und ${fmt(t.second)}.<br>${fmt(t.a)} ${t.sign} ${fmt(t.first)} = ${fmt(t.base)}<br>${fmt(t.base)} ${t.sign} ${fmt(t.second)} = ${fmt(t.answer)}</p>`;
  if(t.kind==='pairs')return `<p>Im Zehnerfeld sind ${t.a} Punkte.<br>Zähle die freien Plätze. Es sind ${t.answer}.<br>${t.a} + ${t.answer} = 10.</p>`;
@@ -138,12 +138,38 @@ function renderDemo(){const t=demos[demoIndex];$('examples').querySelectorAll('b
  `Vom Rechen-Paket bleiben ${t.second} übrig.<br>${fmt(t.base)} ${t.sign} ${t.second} = ${fmt(t.answer)}.`,
  `Ich zerlege ${t.b} in ${t.first} und ${t.second}.<br><strong>${fmt(t.a)} ${t.sign} ${t.b} = ${fmt(t.answer)}.</strong>`][demoStage]}</div>`;$('demoPrev').disabled=demoStage===0;$('demoNext').disabled=demoStage===3;}
 $('demoPrev').onclick=()=>{if(demoStage>0)demoStage--;renderDemo();};$('demoNext').onclick=()=>{if(demoStage<3)demoStage++;renderDemo();};
-let blocks=[8,9,9,0]; // Einer, Zehner, Hunderter, Tausender
-function renderBlocks(){const names=['Einer','Zehner','Hunderter','Tausender'];$('placeBoard').innerHTML=[3,2,1,0].map(i=>`<div class="place-col"><h2>${['E','Z','H','T'][i]}</h2><small>${names[i]}</small><strong>${blocks[i]}</strong><div class="dots" aria-label="${blocks[i]} ${names[i]}">${Array.from({length:blocks[i]},()=>'<i class="dot" aria-hidden="true"></i>').join('')}</div></div>`).join('');$('bundle').disabled=!blocks.slice(0,3).some(n=>n>=10);$('unbundle').disabled=!blocks.slice(1).some(n=>n>0);$('addUnit').disabled=blocks[0]>=12;}
+const workshopTasks=[{a:8,b:5},{a:18,b:6},{a:98,b:5},{a:198,b:7},{a:998,b:5},{a:1998,b:6}];
+let workshopIndex=0,workshopPhase='lay',added=0,blocks=[0,0,0,0];
+const blockNames=['Einer','Zehner','Hunderter','Tausender'];
+function blockValue(){return blocks.reduce((sum,n,i)=>sum+n*10**i,0);}
+function normalized(){return blocks.every(n=>n<10);}
 function exchangeMsg(s){$('exchangeMsg').textContent=s;}
-$('addUnit').onclick=()=>{if(blocks[0]>=12)return;blocks[0]++;renderBlocks();exchangeMsg('Ein Einer ist dazugekommen. Kannst du schon 10 tauschen?');};
-$('bundle').onclick=()=>{const i=blocks.findIndex((n,i)=>i<3&&n>=10);if(i<0)return;blocks[i]-=10;blocks[i+1]++;renderBlocks();exchangeMsg(`10 ${['Einer','Zehner','Hunderter'][i]} werden 1 ${['Zehner','Hunderter','Tausender'][i]}. Der Wert bleibt gleich.`);if(blocks[3]===1&&blocks.slice(0,3).every(n=>n===0)){saveStar('exchange');exchangeMsg('Geschafft! Aus 998 und 2 Einern wurde 1 Tausender. 998 + 2 = 1.000.');}};
-$('unbundle').onclick=()=>{const i=blocks.findIndex((n,i)=>i>0&&n>0);if(i<1)return;if(blocks[i-1]+10>25){exchangeMsg('Tausche erst wieder 10 gegen 1.');return;}blocks[i]--;blocks[i-1]+=10;renderBlocks();exchangeMsg(`1 ${['','Zehner','Hunderter','Tausender'][i]} wird zu 10 ${['Einer','Zehner','Hunderter'][i-1]}. Der Wert bleibt gleich.`);};
-$('resetBlocks').onclick=()=>{blocks=[8,9,9,0];renderBlocks();exchangeMsg('998 ist gelegt. Lege 2 Einer dazu. Tausche dann dreimal.');};
+function renderBlocks(){
+ const t=workshopTasks[workshopIndex];
+ $('workshopTask').textContent=`Aufgabe ${workshopIndex+1} von ${workshopTasks.length}: ${fmt(t.a)} + ${t.b}`;
+ $('workshopInstruction').textContent=workshopPhase==='lay'?`1. Lege zuerst ${fmt(t.a)}. Nutze die Plus- und Minus-Tasten unter den Spalten.`:workshopPhase==='add'?`2. Lege ${t.b} Einer dazu. Schon dazugelegt: ${added} von ${t.b}. Tausche dann immer 10 gegen 1.`:workshopIndex===workshopTasks.length-1?'Alle Aufgaben geschafft! Du hast deinen Übungsstern verdient.':'Geschafft! Du kannst zur nächsten Aufgabe gehen.';
+ $('placeBoard').innerHTML=[3,2,1,0].map(i=>`<div class="place-col"><h2>${['E','Z','H','T'][i]}</h2><small>${blockNames[i]}</small><strong>${blocks[i]}</strong><div class="dots" aria-label="${blocks[i]} ${blockNames[i]}">${Array.from({length:blocks[i]},()=>'<i class="dot" aria-hidden="true"></i>').join('')}</div>${workshopPhase==='lay'?`<div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center"><button class="quiet" data-place="${i}" data-change="-1" aria-label="1 ${blockNames[i]} weg" ${blocks[i]===0?'disabled':''}>−</button><button class="quiet" data-place="${i}" data-change="1" aria-label="1 ${blockNames[i]} dazu" ${blocks[i]>=9?'disabled':''}>+</button></div>`:''}</div>`).join('');
+ $('addUnit').hidden=workshopPhase!=='add';$('addUnit').disabled=added>=t.b;
+ $('bundle').disabled=workshopPhase!=='add'||!blocks.slice(0,3).some(n=>n>=10);
+ $('unbundle').disabled=workshopPhase!=='add'||!blocks.slice(1).some(n=>n>0);
+ $('checkBlocks').hidden=workshopPhase==='done';$('checkBlocks').textContent=workshopPhase==='lay'?'Gelegte Zahl prüfen':'Ergebnis prüfen';
+ $('nextBlocks').hidden=workshopPhase!=='done';$('nextBlocks').textContent=workshopIndex===workshopTasks.length-1?'Alle Aufgaben noch einmal':'Nächste Aufgabe →';
+}
+$('placeBoard').onclick=e=>{const b=e.target.closest('[data-place]');if(!b||workshopPhase!=='lay')return;const i=Number(b.dataset.place),n=blocks[i]+Number(b.dataset.change);if(n<0||n>9)return;blocks[i]=n;renderBlocks();exchangeMsg('');};
+$('addUnit').onclick=()=>{if(workshopPhase!=='add'||added>=workshopTasks[workshopIndex].b)return;blocks[0]++;added++;renderBlocks();exchangeMsg('Ein Einer ist dazugekommen.');};
+$('bundle').onclick=()=>{if(workshopPhase!=='add')return;const i=blocks.findIndex((n,i)=>i<3&&n>=10);if(i<0)return;blocks[i]-=10;blocks[i+1]++;renderBlocks();exchangeMsg(`10 ${blockNames[i]} werden 1 ${blockNames[i+1]}. Der Wert bleibt gleich.`);};
+$('unbundle').onclick=()=>{if(workshopPhase!=='add')return;const i=blocks.findIndex((n,i)=>i>0&&n>0);if(i<1)return;if(blocks[i-1]+10>25){exchangeMsg('Tausche zuerst wieder 10 gegen 1.');return;}blocks[i]--;blocks[i-1]+=10;renderBlocks();exchangeMsg(`1 ${blockNames[i]} wird zu 10 ${blockNames[i-1]}. Der Wert bleibt gleich.`);};
+$('checkBlocks').onclick=()=>{
+ const t=workshopTasks[workshopIndex];
+ if(workshopPhase==='lay'){if(blockValue()!==t.a){exchangeMsg(`Noch nicht ganz. Lege ${fmt(t.a)}. Prüfe die Spalten T, H, Z und E.`);return;}workshopPhase='add';renderBlocks();exchangeMsg(`Richtig gelegt! Jetzt kommen ${t.b} Einer dazu.`);return;}
+ if(workshopPhase!=='add')return;
+ if(added!==t.b){exchangeMsg(`Lege noch ${t.b-added} Einer dazu.`);return;}
+ if(!normalized()){exchangeMsg('Tausche noch: In jeder Spalte dürfen höchstens 9 Plättchen liegen.');return;}
+ if(blockValue()!==t.a+t.b){exchangeMsg('Prüfe deine Plättchen noch einmal.');return;}
+ workshopPhase='done';if(workshopIndex===workshopTasks.length-1)saveStar('exchange');renderBlocks();exchangeMsg(`Richtig! ${fmt(t.a)} + ${t.b} = ${fmt(t.a+t.b)}.`);
+};
+function resetWorkshop(){blocks=[0,0,0,0];added=0;workshopPhase='lay';renderBlocks();exchangeMsg('');}
+$('nextBlocks').onclick=()=>{if(workshopPhase!=='done')return;workshopIndex=(workshopIndex+1)%workshopTasks.length;resetWorkshop();};
+$('resetBlocks').onclick=resetWorkshop;
 renderTiles();
 
